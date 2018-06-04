@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> Neighborhood Map </title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+
+        #map {
+            height: 100%;
+        }
+
+        /* Optional: Makes the sample page fill the window. */
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script>
+        // Map Variable.
+        var map;
+
+        // Styles array to formate the map design
+        var styles = [];
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                // Mountain View California
+                center: { lat: 37.4133865, lng: -122.1162864 },
+                zoom: 13,
+                styles, styles, mapTypeControl: false
+            });
+
+            var locations = [
+                { title: 'Googleplex', location: { lat: 37.4154126, lng: -122.0871518 }},
+                { title: 'NASA Ames Research Center', location: { lat: 37.4037799, lng: -122.1057486 }},
+                { title: 'Computer History Museum', location: { lat: 37.4154126, lng: -122.0871518 }},
+                { title: 'In-N-Out Burger', location: { lat: 37.4174795, lng: -122.0864403 }},
+                { title: 'Shoreline Lake Boathouse', location: { lat: 37.4239477, lng: -122.112866 }}
+            ];
+        }
+
+    </script>
+
+    <!-- Load the JS API ASYNCHRONOUSLY -->
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCq1GE9uIunJEUzqnfxH8id_xknI7okebk&callback=initMap"
+        async defer></script>
+</body>
+
+</html>
