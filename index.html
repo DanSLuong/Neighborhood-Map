@@ -3,41 +3,9 @@
 
 <head>
     <title> Neighborhood Map </title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="initial-scale=1.0">
-    <meta charset="utf-8">
-    <style>
-        /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-
-        #map {
-            bottom: 0px;
-            height: 100%;
-            left: 362px;
-            position: absolute;
-            right: 0px;
-        }
-
-        /* Optional: Makes the sample page fill the window. */
-
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        .options-box {
-            background: #fff;
-            /*border: 1px solid #999;
-            border-radius: 1px;*/
-            height: 100%;
-            line-height: 35px;
-            padding: 10px 10px 30px 10px;
-            text-align: left;
-            width: 340px;
-        }
-    </style>
-    <script type='text/javascript' src='js/knockout-3.4.2.js'></script>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
@@ -45,73 +13,34 @@
         <div class="options-box">
             <h2> Target Exploration Areas </h2>
             <div>
-
+                <input id="show" type="button" value="Show Locations">
+                <input id="hide" type="button" value="Hide Locations">
             </div>
             <hr>
             <div>
                 <ul data-bind="foreach: locationsList">
                     <li data-bind="text: title"></li>
+                    <li data-bind="text: location"></li>
                 </ul>
             </div>
             <hr>
             <div>
-                <span class="text"> Search Nearby for Places </span></br>
+                <input id="filter-places-text" type="text" placeholder="Ex: Park">
+                <input id="filter-places" type="button" value="Filter">
+            </div>
+            <hr>
+            <div>
+                <span class="text"> Search Nearby for Places </span>
+                </br>
                 <input id="places-search" type="text" placeholder="Ex: Pizza, Burgers">
                 <input id="go-places" type="button" value="Go">
             </div>
         </div>
     </div>
     <div id="map"></div>
-
-    <script>
-        // Map Variable.
-        var map;
-
-        // Styles array to formate the map design
-        var styles = [];
-
-        var locations = [
-            { title: 'Googleplex', location: { lat: 37.4154126, lng: -122.0871518 } },
-            { title: 'NASA Ames Research Center', location: { lat: 37.4037799, lng: -122.1057486 } },
-            { title: 'Computer History Museum', location: { lat: 37.4154126, lng: -122.0871518 } },
-            { title: 'In-N-Out Burger', location: { lat: 37.4174795, lng: -122.0864403 } },
-            { title: 'Shoreline Lake Boathouse', location: { lat: 37.4239477, lng: -122.112866 } }
-        ];
-
-        var marker = function (data) {
-            this.title = ko.observable(data.title);
-            this.location = ko.observable(data.location);
-
-        };
-
-        var viewModel = function () {
-            var self = this;
-            this.locationsList = ko.observableArray([]);
-
-            locations.forEach(function (locationItem) {
-                self.locationsList.push(new marker(locationItem));
-            });
-
-            this.currentLocation = ko.observable(this.locationsList()[0]);
-
-        };
-
-        ko.applyBindings(new viewModel());
-
-
-        function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
-                // Mountain View California
-                center: { lat: 37.4133865, lng: -122.1162864 },
-                zoom: 13,
-                styles, styles, mapTypeControl: false
-            });
-
-
-        }
-
-    </script>
-
+    <!-- Load the KnockoutJS package -->
+    <script type='text/javascript' src='js/knockout-3.4.2.js'></script>
+    <script type='text/javascript' src='js/script.js'></script>
     <!-- Load the JS API ASYNCHRONOUSLY -->
     <script src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCq1GE9uIunJEUzqnfxH8id_xknI7okebk&callback=initMap"
         async defer></script>
