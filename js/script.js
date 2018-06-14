@@ -4,10 +4,13 @@ var map;
 var largeInfowindow;
 // Styles array to formate the map design
 var styles = [];
+// Foursquare Info
+var clientID = 'DBDW01VAFEOXLYCDACF4Y3CH4NDVRNRSS51CHBODLQ4JHKAJ';
+var clientSecret = '5GI1R25JCGGAK2Z3DWICJFTX2TDDM4UO4ON0DP3FSXYKR41T';
 
 // Locations list for some of the Mountain View places
 var locations = [
-    { title: 'Googleplex', location: { lat: 37.4220703, lng: -122.0839345 } },
+    { title: 'Googleplex', location: { lat: 37.4220, lng: -122.0841 } },
     { title: 'NASA Ames Research Center', location: { lat: 37.4089541, lng: -122.0642083 } },
     { title: 'Computer History Museum', location: { lat: 37.4137122, lng: -122.0778888 } },
     { title: 'In-N-Out Burger', location: { lat: 37.4208109, lng: -122.0932099 } },
@@ -47,8 +50,38 @@ var markers = function (locationItem) {
 };
 
 
+function pizzaPlaces() {
+    // Foursquare API request URL
+    var URL = 'https://api.foursquare.com/v2/venues/explore?query=nearby&ll=37.4133865,' +
+        '-122.1162864&categoryId=4bf58dd8d48988d1ca941735&limit=5&client_id=' +
+        clientID + '&client_secret=' + clientSecret + '&v=20180323';
+
+    // Ajax call to Foursquare API to get info for 5 pizza placess nearby.
+    $.ajax({
+        url: URL,
+        dataType: 'jsonp',
+        success: function (result) {
+            for (var i = 0; i < 5; i++) {
+                locations.push({
+                    title: result.response.groups[0].items[i].venue.name,
+                    location: {
+                        lat: result.response.groups[0].items[i].venue.location.lat,
+                        lng: result.response.groups[0].items[i].venue.location.lng
+                    }
+                });
+            }
+        }, error: function () {
+            console.log('bad request');
+        }
+    });
+}
+
+
 var ViewModel = function () {
     var self = this;
+
+    // Load the Foursquare Data
+    pizzaPlaces();
 
     // Create a observableArray to store the location's markers
     this.locationsList = ko.observableArray([]);
@@ -89,7 +122,6 @@ var ViewModel = function () {
             })
         }
     });
-
 };
 
 
@@ -139,13 +171,13 @@ var showInfo = function (marker) {
     largeInfowindow.setContent('<div>' + marker.title + '</div>' +
                                 '<img src="' + streetView +
                                 '" height="300" width="300">');
-    
+
     // Loads the infowindow on the map at the marker
     largeInfowindow.open(map, marker);
 };
 
 
-var clickedLocation = function() {
+var clickedLocation = function () {
     showInfo(this.marker);
 };
 
