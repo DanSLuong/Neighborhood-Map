@@ -6,45 +6,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="initial-scale=1.0">
     <link rel="stylesheet" href="css/styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 
 <body>
-    <div class="container">
-        <div class="options-box">
-            <h2> Target Exploration Areas </h2>
-            <div>
-                <input id="show" type="button" value="Show Locations">
-                <input id="hide" type="button" value="Hide Locations">
+
+    <nav class="container" id="menu">
+        <aside class="col-sm-4" id="filterSearch">
+            <div class="row">
+                <input class="filter-text" placeholder="Ex: Park, pizza, library">
+                <input class="filter-button" type="button" value="Filter">
             </div>
-            <hr>
-            <div>
-                <ul data-bind="foreach: locationsList">
-                    <li data-bind="text: title"></li>
-                    <li data-bind="text: location"></li>
-                </ul>
+            <div class="row">
+                <div>
+                    <div data-bind="foreach: locationsList">
+                        <a data-bind="text: title"></a>
+                        <br>
+                    </div>
+                    <br>
+                </div>
             </div>
-            <hr>
-            <div>
-                <input id="filter-places-text" type="text" placeholder="Ex: Park">
-                <input id="filter-places" type="button" value="Filter">
-            </div>
-            <hr>
-            <div>
-                <span class="text"> Search Nearby for Places </span>
-                </br>
-                <input id="places-search" type="text" placeholder="Ex: Pizza, Burgers">
-                <input id="go-places" type="button" value="Go">
-            </div>
-        </div>
-    </div>
+        </aside>
+    </nav>
+
+
     <div id="map"></div>
+
     <!-- Load the KnockoutJS package -->
     <script type='text/javascript' src='js/knockout-3.4.2.js'></script>
     <script type='text/javascript' src='js/script.js'></script>
     <!-- Load the JS API ASYNCHRONOUSLY -->
-    <script src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyCq1GE9uIunJEUzqnfxH8id_xknI7okebk&callback=initMap"
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyCq1GE9uIunJEUzqnfxH8id_xknI7okebk&callback=initMap"
         async defer></script>
-
 </body>
 
 </html>
