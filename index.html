@@ -15,13 +15,12 @@
     <nav class="container" id="menu">
         <aside class="col-sm-4" id="filterSearch">
             <div class="row">
-                <input class="filter-text" placeholder="Ex: Park, pizza, library">
-                <input class="filter-button" type="button" value="Filter">
+                <input class="filter-text" data-bind="textInput: query" placeholder="Filter: Ex: Park, pizza, library">
             </div>
             <div class="row">
                 <div>
-                    <div data-bind="foreach: locationsList">
-                        <a data-bind="text: title"></a>
+                    <div data-bind="foreach: filtered">
+                        <a data-bind="text: title, click: showInfo"></a>
                         <br>
                     </div>
                     <br>
