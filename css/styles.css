@@ -18,7 +18,7 @@ body {
     padding: 0;
 }
 
-.options-box {
+#menu {
     background: #fff;
     /*border: 1px solid #999;
     border-radius: 1px;*/
@@ -29,3 +29,17 @@ body {
     width: 340px;
 }
 
+#filter-box {
+    text-align: left;
+    width: 100%;
+}
+
+#map-window {
+    width: 500px;
+    height: 50px;
+}
+
+#pano {
+    width: 300px;
+    height: 300px;
+  }

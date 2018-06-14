@@ -23,11 +23,13 @@ var locations = [
 ];
 
 
-var markers = function (data) {
+var markers = function (locationItem) {
     var self = this;
 
-    this.title = ko.observable(data.title);
-    this.location = ko.observable(data.location);
+    this.title = ko.observable(locationItem.title);
+    this.location = ko.observable(locationItem.location);
+    this.lat = ko.observable(locationItem.lat);
+    this.lng = ko.observable(locationItem.lng);
 
     // Create Markers with the given data
     var marker = new google.maps.Marker({
@@ -37,7 +39,9 @@ var markers = function (data) {
     });
 
     // Listener for when clicked to open info window
-    marker.addListener('click', showInfo);
+    marker.addListener('click', function () {
+        showInfo(this, largeInfowindow);
+    });
     self.marker = marker;
 };
 
@@ -49,26 +53,43 @@ var ViewModel = function () {
     this.locationsList = ko.observableArray([]);
 
     // Store each of the locations as markers on the LocationsList
-    locations.forEach(function (item) {
-        self.locationsList.push(new markers(item));
+    locations.forEach(function (locationItem) {
+        self.locationsList.push(new markers(locationItem));
     });
 
     // Empty obserbable string to store the filter query string
     this.query = ko.observable('');
 
-    this.filtered = ko.computed(function () {
+    // Filter the locationsList according to the text typed in the Filter box
+    this.filteredResult = ko.computed(function () {
         // Changes query to lowercase because case sensitive comparisons
         var filter = self.query().toLowerCase();
 
         // Check if there is no text in the filter and returns full list if query is empty
         if (!self.query()) {
+            ko.utils.arrayForEach(self.locationsList(), function (item) {
+                if (item.marker) {
+                    item.marker.setVisible(true);
+                }
+            });
             return self.locationsList();
         } else {
             // Returns items in locationsList that contain the query request
-            return self.locationsList().filter(item => item.title().toLowerCase().indexOf(filter) > -1);
+            return ko.utils.arrayFilter(self.locationsList(), function (item) {
+                // Lowercase of the location title for case sensitivity
+                var titleLower = item.title().toLowerCase();
+                // Store the LocationsList titles that contain the filter value
+                var filtered = (titleLower.search(filter) >= 0)
+                if (item.marker) {
+                    item.marker.setVisible(filtered);
+                }
+                return filtered;
+            })
         }
     });
+
 };
+
 
 var showInfo = function (marker) {
     var self = this;
@@ -78,14 +99,36 @@ var showInfo = function (marker) {
         largeInfowindow.close();
     }
 
-    // Basic info to show in infowindow for now
-    var info = '<div id="InfoWindowContent"></div>' + marker.title + '<br' + marker.location;
-    largeInfowindow = new google.maps.InfoWindow({ content: info });
+    var streetViewService = new google.maps.StreetViewService();
+    var radius = 50;
+    
+    function getStreetView(data, status) {
+        if (status == google.maps.StreetViewStatus.OK) {
+            var nearStreetViewLocation = data.location.latLng;
+            var heading = google.maps.geometry.spherical.computeHeading(
+                nearStreetViewLocation, marker.position
+            );
+            largeInfowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
+            var panoramaOptions = {
+                positon: nearStreetViewLocation,
+                pov: {
+                    heading: heading,
+                    pitch: 20
+                }
+            };
+            var panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);
+        } else {
+            largeInfowindow.setContent('<div>' + marker.title + '</div>' + '<div> No Street View Found </div');
+        }
+    }
+    streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
 
     // Loads the infowindow on the map at the marker
     largeInfowindow.open(map, marker);
 };
 
+
+// Initialize the google map
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
         // Mountain View California
@@ -94,6 +137,8 @@ function initMap() {
         styles, styles,
         mapTypeControl: false
     });
+
+    largeInfowindow = new google.maps.InfoWindow();
 
     ko.applyBindings(new ViewModel());
 };
