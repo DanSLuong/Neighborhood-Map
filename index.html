@@ -17,7 +17,7 @@
         <input id="filter-box" data-bind="textInput: query" placeholder="Filter: Ex: Park, pizza, library">
         <div>
             <div data-bind="foreach: filteredResult">
-                <a data-bind="text: title, click: showInfo"></a>
+                <a data-bind="text: title, click: clickedLocation"></a>
                 <br>
             </div>
             <br>
