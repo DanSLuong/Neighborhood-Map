@@ -1,10 +1,10 @@
 // Map Variable
 var map;
-// Info window
+// Info window Variable
 var largeInfowindow;
-// Styles array to formate the map design
-var styles = [];
-// Foursquare Info
+// Boundaries Variable
+var bounds;
+// Foursquare Info Variables
 var clientID = 'DBDW01VAFEOXLYCDACF4Y3CH4NDVRNRSS51CHBODLQ4JHKAJ';
 var clientSecret = '5GI1R25JCGGAK2Z3DWICJFTX2TDDM4UO4ON0DP3FSXYKR41T';
 
@@ -26,52 +26,75 @@ var locations = [
 ];
 
 
-
 var markers = function (locationItem) {
     var self = this;
 
     this.title = ko.observable(locationItem.title);
     this.position = ko.observable(locationItem.location);
-    this.lat = ko.observable(locationItem.lat);
-    this.lng = ko.observable(locationItem.lng);
+
+    // Style the markers a bit. this will be our listing marker icon.
+    var defaultIcon = makeMarkerIcon('FF0000');
+
+    // Create a "highlighted location" marker color for when the user mouses over the marker.
+    var highlightedIcon = makeMarkerIcon('F08080');
 
     // Create Markers with the given data
     var marker = new google.maps.Marker({
         title: self.title(),
         position: self.position(),
+        icon: defaultIcon,
+        animation: google.maps.Animation.DROP,
         map: map
     });
 
     // Listener for when clicked to open info window
     marker.addListener('click', function () {
+        // Add bounce animation for when clicked
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+        // Timeout the animation after 1 cycle
+        setTimeout(function () { marker.setAnimation(null); }, 700);
         showInfo(this, largeInfowindow);
     });
+
+    // Mouseover and mouseout events to highlight and return the marker to normal
+    marker.addListener('mouseover', function () {
+        this.setIcon(highlightedIcon);
+    });
+    marker.addListener('mouseout', function () {
+        this.setIcon(defaultIcon);
+    });
+
     self.marker = marker;
+
+    // Bias the boundaries of the map
+    bounds.extend(self.marker.position);
+    map.fitBounds(bounds);
 };
 
 
 function pizzaPlaces() {
+    // CategoryId for Pizza according to Foursquare API documentation
+    categoryID = '4bf58dd8d48988d1ca941735';
     // Foursquare API request URL
     var URL = 'https://api.foursquare.com/v2/venues/explore?query=nearby&ll=37.4133865,' +
-        '-122.1162864&categoryId=4bf58dd8d48988d1ca941735&limit=5&client_id=' +
+        '-122.1162864&categoryId=' + categoryID + '&limit=10&client_id=' +
         clientID + '&client_secret=' + clientSecret + '&v=20180323';
 
-    // Ajax call to Foursquare API to get info for 5 pizza placess nearby.
-    $.ajax({
-        url: URL,
-        dataType: 'jsonp',
-        success: function (result) {
-            for (var i = 0; i < 5; i++) {
-                locations.push({
-                    title: result.response.groups[0].items[i].venue.name,
-                    location: {
-                        lat: result.response.groups[0].items[i].venue.location.lat,
-                        lng: result.response.groups[0].items[i].venue.location.lng
-                    }
-                });
-            }
-        }, error: function () {
-            console.log('bad request');
+    // Load JSON request first before loading web application
+    $.ajaxSettings.async = false;
+    // getJSON call to Foursquare API to get info for 5 pizza placess nearby.
+    // http://knockoutjs.com/documentation/json-data.html
+    $.getJSON(URL, function (result) {
+        // Now use this data to update your view models, 
+        // and Knockout will update your UI automatically
+        for (var i = 0; i < 10; i++) {
+            locations.push({
+                title: result.response.groups[0].items[i].venue.name,
+                location: {
+                    lat: result.response.groups[0].items[i].venue.location.lat,
+                    lng: result.response.groups[0].items[i].venue.location.lng
+                }
+            });
         }
     });
 }
@@ -133,50 +156,49 @@ var showInfo = function (marker) {
         largeInfowindow.close();
     }
 
-    /*
-    // Currently not giving a proper image
-    var streetViewService = new google.maps.StreetViewService();
-    var radius = 50;
-
-    function getStreetView(data, status) {
-        if (status == google.maps.StreetViewStatus.OK) {
-            var nearStreetViewLocation = data.location.latLng;
-            var heading = google.maps.geometry.spherical.computeHeading(
-                nearStreetViewLocation, marker.position
-            );
-            largeInfowindow.setContent('<div>' + marker.title +
-                '</div><div id="pano"></div>');
-            var panorama = new google.maps.StreetViewPanorama(
-                document.getElementById('pano'), {
-                    positon: nearStreetViewLocation,
-                    pov: {
-                        heading: heading,
-                        pitch: 30
-                    }
-                });
-        } else {
-            largeInfowindow.setContent('<div>' + marker.title + '</div>' +
-                '<div> No Street View Found </div');
-        }
-    }
-    streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
-    */
-
     // Temperary Street view solution(hardcoded)
-    var streetView = 'https://maps.googleapis.com/maps/api/streetview?size='+
-                     '300x300&location=' + marker.position.lat() + ',' +
-                     marker.position.lng() + '&key=AIzaSyCq1GE9uIunJEUzqnfxH8id'+
-                     '_xknI7okebk&callback=initMap';
+    var streetView = 'https://maps.googleapis.com/maps/api/streetview?size=' +
+        '300x300&location=' + marker.position.lat() + ',' +
+        marker.position.lng() + '&key=AIzaSyCq1GE9uIunJEUzqnfxH8id' +
+        '_xknI7okebk&callback=initMap';
 
     largeInfowindow.setContent('<div>' + marker.title + '</div>' +
-                                '<img src="' + streetView +
-                                '" height="300" width="300">');
+        '<img src="' + streetView +
+        '" height="200" width="200">');
 
     // Loads the infowindow on the map at the marker
     largeInfowindow.open(map, marker);
 };
 
 
+// of 0,0 and be anchored at 10, 34
+function makeMarkerIcon(markerColor) {
+    var markerImage = new google.maps.MarkerImage(
+        'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' + markerColor +
+        '|40|_|%E2%80%A2',
+        new google.maps.Size(21, 34),
+        new google.maps.Point(0, 0),
+        new google.maps.Point(10, 34),
+        new google.maps.Size(21, 34));
+    return markerImage;
+}
+
+
+// Mouseover event to highlight the marker
+var highlight = function () {
+    var highlightedIcon = makeMarkerIcon('F08080');
+    this.marker.setIcon(highlightedIcon);
+};
+
+
+// Mouseout event to return the marker to normal
+var unhighlight = function () {
+    var defaultIcon = makeMarkerIcon('FF0000');
+    this.marker.setIcon(defaultIcon);
+};
+
+
+// runs showInfo function when the link is clicked from the list
 var clickedLocation = function () {
     showInfo(this.marker);
 };
@@ -188,11 +210,12 @@ function initMap() {
         // Mountain View California
         center: { lat: 37.4133865, lng: -122.1162864 },
         zoom: 13,
-        styles, styles,
         mapTypeControl: false
     });
 
     largeInfowindow = new google.maps.InfoWindow();
+
+    bounds = new google.maps.LatLngBounds();
 
     ko.applyBindings(new ViewModel());
 };

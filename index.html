@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="col-sm-3-xs-3">
                     <div data-bind="foreach: filteredResult">
-                        <a class="locations" data-bind="text: title, click: clickedLocation"></a>
+                        <a class="locations" data-bind="text: title, click: clickedLocation, event: { mouseover: highlight, mouseout: unhighlight }"></a>
                         <br>
                     </div>
                 </div>
