@@ -10,19 +10,14 @@ var clientSecret = '5GI1R25JCGGAK2Z3DWICJFTX2TDDM4UO4ON0DP3FSXYKR41T';
 
 // Locations list for some of the Mountain View places
 var locations = [
-    { title: 'Googleplex', location: { lat: 37.4220, lng: -122.0841 } },
-    { title: 'NASA Ames Research Center', location: { lat: 37.4089541, lng: -122.0642083 } },
-    { title: 'Computer History Museum', location: { lat: 37.4137122, lng: -122.0778888 } },
-    { title: 'In-N-Out Burger', location: { lat: 37.4208109, lng: -122.0932099 } },
-    { title: 'Shoreline Lake Boathouse', location: { lat: 37.433036, lng: -122.0882706 } },
-    { title: "Mountain Mike's Pizza", location: { lat: 37.419004, lng: -122.110353 } },
-    { title: 'Burger King', location: { lat: 37.379408, lng: -122.0814392 } },
-    { title: 'McKelvey Ball Park', location: { lat: 37.4135125, lng: -122.1162864 } },
-    { title: 'The Habit Burger Grill', location: { lat: 37.367801, lng: -122.033131 } },
-    { title: 'Magnolia Park', location: { lat: 37.3779178, lng: -122.1222946 } },
-    { title: 'Cornelis Bol Park', location: { lat: 37.4110809, lng: -122.1387771 } },
-    { title: 'Boardwalk Fries Burgers Shakes', location: { lat: 37.4030189, lng: -122.0089492 } },
-    { title: 'Umami Burger Palo Alto', location: { lat: 37.4477386, lng: -122.1597952 } }
+    { title: 'Googleplex', location: { lat: 37.4220, lng: -122.0841 }, address: '1600 Amphitheatre Pkwy' },
+    { title: 'NASA Ames Research Center', location: { lat: 37.4089541, lng: -122.0642083 }, address: '2101 E NASA Pkwy' },
+    { title: 'Computer History Museum', location: { lat: 37.4137122, lng: -122.0778888 }, address: '1401 N Shoreline Blvd', crossStreet: 'at La Avenida St' },
+    { title: 'In-N-Out Burger', location: { lat: 37.38044374583181, lng: -122.07400023937225 }, address: '53 W El Camino Real', crossStreet: 'at Grant Rd'  },
+    { title: 'Five Guys Burgers', location: { lat: 37.395941432078025, lng: -122.10153497124419 }, address: '2098 W El Camino Real' },
+    { title: 'The Habit Burger Grill', location: { lat: 37.367819, lng: -122.033136 }, address: '146 W El Camino Real, Sunnyvale' , crossStreet: 'in West Sunnyvale Shopping Center'},
+    { title: 'Boardwalk Fries Burgers Shakes', location: { lat: 37.403028, lng: -122.008611 }, address: '691 Tasman Dr, Sunnyvale' },
+    { title: 'Umami Burger', location: { lat: 37.447715315432944, lng: -122.15976801252245 }, address: '452 University Avenue' }
 ];
 
 
@@ -31,6 +26,9 @@ var markers = function (locationItem) {
 
     this.title = ko.observable(locationItem.title);
     this.position = ko.observable(locationItem.location);
+    this.address = ko.observable(locationItem.address);
+    this.crossStreet = ko.observable(locationItem.crossStreet);
+
 
     // Style the markers a bit. this will be our listing marker icon.
     var defaultIcon = makeMarkerIcon('FF0000');
@@ -42,6 +40,8 @@ var markers = function (locationItem) {
     var marker = new google.maps.Marker({
         title: self.title(),
         position: self.position(),
+        address: self.address(),
+        crossStreet: self.crossStreet(),
         icon: defaultIcon,
         animation: google.maps.Animation.DROP,
         map: map
@@ -72,81 +72,105 @@ var markers = function (locationItem) {
 };
 
 
-function pizzaPlaces() {
-    // CategoryId for Pizza according to Foursquare API documentation
-    categoryID = '4bf58dd8d48988d1ca941735';
-    // Foursquare API request URL
-    var URL = 'https://api.foursquare.com/v2/venues/explore?query=nearby&ll=37.4133865,' +
-        '-122.1162864&categoryId=' + categoryID + '&limit=10&client_id=' +
-        clientID + '&client_secret=' + clientSecret + '&v=20180323';
+// On load, initializes the pizzaPlaces() function before loading initializing 
+// the knockout/ViewModel portion
+pizzaPlaces().then(function (locations) {
+    startView(locations)
+}).catch(function (errorObj) {
+    alert("Couldn't load the Foursquare API. Please try again.");
+});
 
-    // Ajax call to Foursquare API to get info for 5 pizza placess nearby.
-    $.ajax({
-        url: URL,
-        dataType: 'jsonp',
-        success: function (result) {
-            for (var i = 0; i < 10; i++) {
-                locations.push({
-                    title: result.response.groups[0].items[i].venue.name,
-                    location: {
-                        lat: result.response.groups[0].items[i].venue.location.lat,
-                        lng: result.response.groups[0].items[i].venue.location.lng
-                    }
-                });
+
+function pizzaPlaces() {
+    // Use promises so that the data is fetched before anything else
+    // https://developers.google.com/web/fundamentals/primers/promises#toc-coding-with-promises
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+    return new Promise(function (resolve, reject) {
+        // CategoryId for Pizza according to Foursquare API documentation
+        categoryID = '4bf58dd8d48988d1ca941735';
+        // Foursquare API request URL
+        var URL = 'https://api.foursquare.com/v2/venues/explore?query=nearby&ll=37.4133865,' +
+            '-122.1162864&categoryId=' + categoryID + '&limit=10&client_id=' +
+            clientID + '&client_secret=' + clientSecret + '&v=20180323';
+
+        // Ajax call to Foursquare API to get info for 5 pizza placess nearby.
+        $.ajax({
+            url: URL,
+            dataType: 'jsonp',
+            async: true,
+            success: function (result) {
+                for (var i = 0; i < 10; i++) {
+                    locations.push({
+                        title: result.response.groups[0].items[i].venue.name,
+                        location: {
+                            lat: result.response.groups[0].items[i].venue.location.lat,
+                            lng: result.response.groups[0].items[i].venue.location.lng
+                        },
+                        address: result.response.groups[0].items[i].venue.location.address,
+                        crossStreet: result.response.groups[0].items[i].venue.location.crossStreet
+                    });
+                }
+                resolve(locations);
+            }, error: function (jqXHR, message, errorObj) {
+                alert("Couldn't load the Foursquare API. Please try again.");
+                reject(errorObj);
             }
-        }, error: function () {
-            alert("Couldn't load the Foursquare API. Please try again.");
-        }
+        });
     });
 }
 
 
-var ViewModel = function () {
-    var self = this;
 
-    // Load the Foursquare Data
-    pizzaPlaces();
+function startView(locations) {
+    var ViewModel = function () {
+        var self = this;
 
-    // Create a observableArray to store the location's markers
-    this.locationsList = ko.observableArray([]);
+        // Load the Foursquare Data
+        pizzaPlaces();
 
-    // Store each of the locations as markers on the LocationsList
-    locations.forEach(function (locationItem) {
-        self.locationsList.push(new markers(locationItem));
-    });
+        // Create a observableArray to store the location's markers
+        this.locationsList = ko.observableArray([]);
 
-    // Empty obserbable string to store the filter query string
-    this.query = ko.observable('');
+        // Store each of the locations as markers on the LocationsList
+        locations.forEach(function (locationItem) {
+            self.locationsList.push(new markers(locationItem));
+        });
 
-    // Filter the locationsList according to the text typed in the Filter box
-    this.filteredResult = ko.computed(function () {
-        // Changes query to lowercase because case sensitive comparisons
-        var filter = self.query().toLowerCase();
+        // Empty obserbable string to store the filter query string
+        this.query = ko.observable('');
 
-        // Check if there is no text in the filter and returns full list if 
-        // query is empty
-        if (!self.query()) {
-            ko.utils.arrayForEach(self.locationsList(), function (item) {
-                if (item.marker) {
-                    item.marker.setVisible(true);
-                }
-            });
-            return self.locationsList();
-        } else {
-            // Returns items in locationsList that contain the query request
-            return ko.utils.arrayFilter(self.locationsList(), function (item) {
-                // Lowercase of the location title for case sensitivity
-                var titleLower = item.title().toLowerCase();
-                // Store the LocationsList titles that contain the filter value
-                var filtered = (titleLower.search(filter) >= 0)
-                if (item.marker) {
-                    item.marker.setVisible(filtered);
-                }
-                return filtered;
-            })
-        }
-    });
-};
+        // Filter the locationsList according to the text typed in the Filter box
+        this.filteredResult = ko.computed(function () {
+            // Changes query to lowercase because case sensitive comparisons
+            var filter = self.query().toLowerCase();
+
+            // Check if there is no text in the filter and returns full list if 
+            // query is empty
+            if (!self.query()) {
+                ko.utils.arrayForEach(self.locationsList(), function (item) {
+                    if (item.marker) {
+                        item.marker.setVisible(true);
+                    }
+                });
+                return self.locationsList();
+            } else {
+                // Returns items in locationsList that contain the query request
+                return ko.utils.arrayFilter(self.locationsList(), function (item) {
+                    // Lowercase of the location title for case sensitivity
+                    var titleLower = item.title().toLowerCase();
+                    // Store the LocationsList titles that contain the filter value
+                    var filtered = (titleLower.search(filter) >= 0)
+                    if (item.marker) {
+                        item.marker.setVisible(filtered);
+                    }
+                    return filtered;
+                })
+            }
+        });
+    };
+    ko.applyBindings(ViewModel);
+}
+
 
 
 var showInfo = function (marker) {
@@ -157,7 +181,8 @@ var showInfo = function (marker) {
         largeInfowindow.close();
     }
 
-    largeInfowindow.setContent('<div>' + marker.title + '</div>');
+    largeInfowindow.setContent('<div>' + marker.title + '<br> Address: ' + marker.address +
+                                '<br> Crossing Street: ' + marker.crossStreet + '</div>');
 
     // Loads the infowindow on the map at the marker
     largeInfowindow.open(map, marker);
@@ -197,7 +222,7 @@ var clickedLocation = function () {
 };
 
 
-window.googleError = function(){
+window.googleError = function () {
     alert("An error while loading Google Maps occurred, please try to reload the page.");
 };
 
@@ -214,6 +239,4 @@ function initMap() {
     largeInfowindow = new google.maps.InfoWindow();
 
     bounds = new google.maps.LatLngBounds();
-
-    ko.applyBindings(new ViewModel());
 };
