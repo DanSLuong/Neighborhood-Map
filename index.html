@@ -12,28 +12,27 @@
 
 <body>
     <div class="container-fluid" id="menu">
-        <nav class="navbar">
-            <div class="row">
-                <div class="col">
-                    <input id="filter-box" data-bind="textInput: query" placeholder="Filter: Ex: Burgers, pizza, Google">
+        <div class="row">
+            <div class="col">
+                <input id="filter-box" data-bind="textInput: query" placeholder="Filter: Ex: Burgers, pizza, Google">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-3-xs-3">
+                <div data-bind="foreach: filteredResult">
+                    <a class="locations" data-bind="text: title, click: clickedLocation, event: { mouseover: highlight, mouseout: unhighlight }"></a>
+                    <br>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-3-xs-3">
-                    <div data-bind="foreach: filteredResult">
-                        <a class="locations" data-bind="text: title, click: clickedLocation, event: { mouseover: highlight, mouseout: unhighlight }"></a>
-                        <br>
-                    </div>
-                </div>
-            </div>
-        </nav>
+        </div>
     </div>
+
     <div class="container-fluid">
         <div class="row" id="map-window">
             <div id="map"></div>
         </div>
     </div>
-
 
     <!-- Load the KnockoutJS package -->
     <script type='text/javascript' src='js/knockout-3.4.2.js'></script>
