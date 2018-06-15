@@ -3,10 +3,7 @@ A map of a neighborhood. with add functionality including highlighted locations,
 
 ## [Udacity Project Overview](Project_Overview.MD)
 
-
-
-
-### Languages and Frameworks
+### Languages and Frameworks Used
 * [JavaScript](https://www.javascript.com/)
 * [KnockoutJS](http://knockoutjs.com)
 * [Bootstrap](https://getbootstrap.com/docs/4.0/components/navbar/)
@@ -14,6 +11,9 @@ A map of a neighborhood. with add functionality including highlighted locations,
 * [HTML](https://www.w3schools.com/Html/)
 * [CSS](https://www.w3schools.com/css/default.asp)
 
+### Directions for Viewing
+1. Download all the files from the [Neighborhood-Map](https://github.com/DanSLuong/Neighborhood-Map) repository into a folder.
+2. Open the ```index.html``` file in any web browser.
 
 ### Resources
 * [KnockoutJS Documentation](http://knockoutjs.com/documentation)
