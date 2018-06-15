@@ -80,21 +80,22 @@ function pizzaPlaces() {
         '-122.1162864&categoryId=' + categoryID + '&limit=10&client_id=' +
         clientID + '&client_secret=' + clientSecret + '&v=20180323';
 
-    // Load JSON request first before loading web application
-    $.ajaxSettings.async = false;
-    // getJSON call to Foursquare API to get info for 5 pizza placess nearby.
-    // http://knockoutjs.com/documentation/json-data.html
-    $.getJSON(URL, function (result) {
-        // Now use this data to update your view models, 
-        // and Knockout will update your UI automatically
-        for (var i = 0; i < 10; i++) {
-            locations.push({
-                title: result.response.groups[0].items[i].venue.name,
-                location: {
-                    lat: result.response.groups[0].items[i].venue.location.lat,
-                    lng: result.response.groups[0].items[i].venue.location.lng
-                }
-            });
+    // Ajax call to Foursquare API to get info for 5 pizza placess nearby.
+    $.ajax({
+        url: URL,
+        dataType: 'jsonp',
+        success: function (result) {
+            for (var i = 0; i < 5; i++) {
+                locations.push({
+                    title: result.response.groups[0].items[i].venue.name,
+                    location: {
+                        lat: result.response.groups[0].items[i].venue.location.lat,
+                        lng: result.response.groups[0].items[i].venue.location.lng
+                    }
+                });
+            }
+        }, error: function () {
+            alert("Couldn't load the Foursquare API. Please try again.");
         }
     });
 }
@@ -156,15 +157,7 @@ var showInfo = function (marker) {
         largeInfowindow.close();
     }
 
-    // Temperary Street view solution(hardcoded)
-    var streetView = 'https://maps.googleapis.com/maps/api/streetview?size=' +
-        '300x300&location=' + marker.position.lat() + ',' +
-        marker.position.lng() + '&key=AIzaSyCq1GE9uIunJEUzqnfxH8id' +
-        '_xknI7okebk&callback=initMap';
-
-    largeInfowindow.setContent('<div>' + marker.title + '</div>' +
-        '<img src="' + streetView +
-        '" height="200" width="200">');
+    largeInfowindow.setContent('<div>' + marker.title + '</div>');
 
     // Loads the infowindow on the map at the marker
     largeInfowindow.open(map, marker);
