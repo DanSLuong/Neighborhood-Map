@@ -197,6 +197,11 @@ var clickedLocation = function () {
 };
 
 
+window.googleError = function(){
+    alert("An error while loading Google Maps occurred, please try to reload the page.");
+};
+
+
 // Initialize the google map
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
