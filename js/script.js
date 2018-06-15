@@ -85,7 +85,7 @@ function pizzaPlaces() {
         url: URL,
         dataType: 'jsonp',
         success: function (result) {
-            for (var i = 0; i < 5; i++) {
+            for (var i = 0; i < 10; i++) {
                 locations.push({
                     title: result.response.groups[0].items[i].venue.name,
                     location: {
