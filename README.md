@@ -1,15 +1,15 @@
 # Neighborhood-Map
-A map of a neighborhood. with add functionality including highlighted locations, third-party data about those locations and various ways to browse the content
+The goal of this project is to develop a map of a neighborhood with locations of interest marked. The markers need to be animated in response to user interactions and the user should have the ability to filter though the listed locations.
 
 ## [Udacity Project Overview](Project_Overview.MD)
 
-### Languages and Frameworks Used
-* [JavaScript](https://www.javascript.com/)
+### Languages, APIs, and Frameworks Used
+* [JavaScript, HTML, CSS](https://www.w3schools.com/)
 * [KnockoutJS](http://knockoutjs.com)
+* [Google Maps API](https://cloud.google.com/maps-platform/)
+* [Foursquare Venues API](https://developer.foursquare.com/)
 * [Bootstrap](https://getbootstrap.com/docs/4.0/components/navbar/)
 * [JQuery](http://api.jquery.com/)
-* [HTML](https://www.w3schools.com/Html/)
-* [CSS](https://www.w3schools.com/css/default.asp)
 
 ### Directions for Viewing
 1. Download all the files from the [Neighborhood-Map](https://github.com/DanSLuong/Neighborhood-Map) repository into a folder.
